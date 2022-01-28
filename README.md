@@ -1,5 +1,5 @@
 
-# Caluculate wordle entropy.  
+# Calculate wordle entropy.  
 
 note :    
 This code is implemented by String.  
