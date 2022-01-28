@@ -50,15 +50,19 @@ result :
 ("Pygmy",2.3436516148548154)  
 ("uhhuh",2.1431134341263065)
  ...  
-("COBOL",0.10906401863712925)
+("COBOL",0.10906401863712925)  
 ("UNRWA",9.391515150447026e-2)
-
-
+  
+    
+  
+  
 note :    
 This code is implemented by String.  
 So other first structure is better, of course.  
 But String is a list and pattern matching is easy way.  
 
+  
+  
   
     
 参考  
