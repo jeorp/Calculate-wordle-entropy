@@ -7,6 +7,8 @@ dependencies:
 - mtl
 - sqlite-simple
 - utility-ht
+- containers
+- async
 - hspec
 
 library:
