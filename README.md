@@ -4,7 +4,7 @@
 note :    
 This code is implemented by String.  
 So other first structure is better, of course.  
-But String is list and pattern match is easy way.  
+But String is a list and pattern match is easy way.  
 
   
     
