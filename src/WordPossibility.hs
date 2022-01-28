@@ -4,6 +4,7 @@ module WordPossibility where
 import Data.Char (isAlpha, toLower)
 import Data.List (intercalate)
 import qualified Data.List.Key as LTH
+import qualified Data.Set as Set
 import Data.Maybe (fromMaybe) 
 import Control.Arrow (Arrow((&&&)))
 
@@ -14,9 +15,11 @@ validateN :: Int -> FilePath -> FilePath -> IO ()
 validateN n input output = do
   file <- readFile input
   let ws = words file
-      five_words = filter (\s -> all isAlpha s && length s == n) ws
-  print $ length ws
-  writeFile output $ intercalate "\n" five_words
+      enu_words = filter (\s -> all isAlpha s && length s == n) ws
+      words_set = Set.fromList enu_words 
+  print $ length enu_words
+  print $ Set.size words_set
+  writeFile output $ intercalate "\n" (Set.toList words_set)
 
 wordEntropyAverage :: String -> Double
 wordEntropyAverage s = sum $ uncurry (*) . (charPossibility &&& charEntropy) <$> s
