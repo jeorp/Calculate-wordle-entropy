@@ -19,7 +19,7 @@ validateN n input output = do
       words_set = Set.fromList enu_words 
   print $ length enu_words
   print $ Set.size words_set
-  writeFile output $ intercalate "\n" (Set.toList words_set)
+  writeFile output $ tail $ Set.foldl' (\a b -> a++"\n"++b) [] words_set
 
 wordEntropyAverage :: String -> Double
 wordEntropyAverage s = sum $ uncurry (*) . (charPossibility &&& charEntropy) <$> s
