@@ -223,8 +223,6 @@ Wilde
 Wimpy
 Woden
 Wuhan
-X
-ray
 Xerox
 Yahwe
 Yemen
@@ -1237,8 +1235,6 @@ eruct
 erupt
 essay
 ester
-et
-al
 ether
 ethic
 ethos
@@ -1728,8 +1724,6 @@ imbue
 impel
 imper
 imply
-in
-re
 inane
 inapt
 incur
@@ -2250,8 +2244,6 @@ olden
 oldie
 olive
 omega
-on
-to
 onion
 onset
 oomph
@@ -2993,8 +2985,6 @@ snowy
 snuck
 snuff
 snuff
-so
-so
 soapy
 sober
 softy

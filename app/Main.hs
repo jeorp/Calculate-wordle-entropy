@@ -8,19 +8,19 @@ import Data.Maybe
 import Control.Arrow 
 
 main :: IO ()
-main = do
-  pure ()
+main = ranking "wordle.txt" >>= mapM_ print . take 100
 
-validate :: FilePath -> FilePath -> IO ()
-validate input output = do
+validateN :: Int -> FilePath -> FilePath -> IO ()
+validateN n input output = do
   file <- readFile input
   let ws = words file
-      five_words = filter (all isAlpha) ws
+      five_words = filter (\s -> all isAlpha s && length s == n) ws
   print $ length ws
   writeFile output $ intercalate "\n" five_words
 
-entropyAverage :: String -> Double
-entropyAverage s = sum $ uncurry (*) . (charPossibility &&& charEntropy) <$> s
+wordEntropyAverage :: String -> Double
+wordEntropyAverage s = sum $ uncurry (*) . (charPossibility &&& charEntropy) <$> s
+
  
 possibilityMap :: [(Char, Double)]
 possibilityMap = 
@@ -65,5 +65,5 @@ ranking :: FilePath -> IO [(String, Double)]
 ranking path = do
   file <-readFile path
   let ws = words file
-      res = (id &&& entropyAverage) <$> ws
+      res = (id &&& wordEntropyAverage) <$> ws
   return $ LTH.sort (negate . snd) res
