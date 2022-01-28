@@ -3,7 +3,7 @@
 # Caluculate wordle entropy.  
 
 note :    
-This code is implemented using String.  
+This code is implemented by String.  
 So other first structure is better, of course.  
 But String is list and pattern match is easy way.  
 
