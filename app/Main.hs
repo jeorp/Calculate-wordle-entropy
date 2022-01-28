@@ -6,5 +6,5 @@ import Data.List (intercalate)
 main = do
   putStrLn "Please wait ..."
   wordleEntropyRanking "wordle.txt" 
-  >>= writeFile "wordleEntropyRanking.txt" . intercalate "\n" . fmap fst . take 100
+  >>= writeFile "wordleEntropyRanking.txt" . intercalate "\n" . fmap show
   >> putStrLn "Finish!"
