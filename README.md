@@ -3,7 +3,7 @@
 
 result :  
   
-(word, entropy)
+(word, entropy)  
 ("raise",6.671051357961695)  
 ("caret",6.655551661366541)  
 ("crane",6.478508247730802)  
