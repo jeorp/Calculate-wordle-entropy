@@ -1,0 +1,4 @@
+.stack-work/
+wordle.cabal
+*.env
+*.sqlite
