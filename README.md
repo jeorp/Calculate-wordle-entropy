@@ -1,5 +1,4 @@
-# wordle
-    
+
 # Caluculate wordle entropy.  
 
 note :    
