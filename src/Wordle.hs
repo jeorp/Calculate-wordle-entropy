@@ -45,30 +45,11 @@ judgeWordle a b = if length a == length b then cal a b else []
 
     cal a b = reverse $ cal' a a b []
 
-judgeWordleDynamic :: String -> TVar (M.Map StringPair [Color]) -> String -> IO [Color]
-judgeWordleDynamic a var b = do
-  let pair = StringPair a b
-  m <- readTVarIO var 
-  case M.lookup pair m of
-    Just colors -> do
-      atomically $ modifyTVar' var (M.delete pair)
-      pure colors
-    Nothing -> do
-      let colors = judgeWordle a b
-      atomically $ modifyTVar' var (M.insert pair colors)
-      pure colors
-
 insertColor :: [Color] -> M.Map [Color] Int -> M.Map [Color] Int
 insertColor color = M.insertWith (+) color 1
 
 countColors :: String -> [String] -> M.Map [Color] Int -> M.Map [Color] Int
 countColors s xs = appEndo $ foldMap (Endo . insertColor . judgeWordle s) xs
-
-countColorsDynamic :: String -> TVar (M.Map StringPair [Color]) -> [String] -> M.Map [Color] Int -> IO (M.Map [Color] Int)
-countColorsDynamic s var xs m = do
-  cs <- traverse (judgeWordleDynamic s var) xs
-  let ms = foldMap (Endo . insertColor) cs
-  pure $ appEndo ms m
 
 wordleEntropyAverage :: String -> [String] -> Double
 wordleEntropyAverage s dict_ = 
@@ -77,12 +58,6 @@ wordleEntropyAverage s dict_ =
       maps = countColors s dict M.empty
   in M.foldr (\a b -> let p = fromIntegral a / fromIntegral sampleCount in p*negate (logBase 2 p) + b) 0 maps
 
-wordleEntropyAverageDynamic :: String -> TVar (M.Map StringPair [Color]) -> [String] -> IO Double
-wordleEntropyAverageDynamic s var dict_ =
-  let dict = filter (/= s) dict_
-      sampleCount = length dict 
-      maps = countColorsDynamic s var dict M.empty
-  in M.foldr (\a b -> let p = fromIntegral a / fromIntegral sampleCount in p*negate (logBase 2 p) + b) 0 <$> maps
 
 calculateWordleEntropy :: String -> FilePath -> IO Double
 calculateWordleEntropy s path = do
@@ -105,13 +80,18 @@ wordleEntropyRankingConcurrent path = do
   LTH.sort (negate . snd) <$> mapConcurrently (pure . f) ws
 
 
--- dynamic version is very slow ...
--- Maybe, readTVar is not efficient.  
-
-wordleEntropyRankingDynamic :: FilePath -> IO [(String, Double)]
-wordleEntropyRankingDynamic path = do
+wordsWithEnv :: [(String, [Color])] -> FilePath -> IO [String]
+wordsWithEnv ms path = do
   file <- readFile path
-  m <- newTVarIO M.empty 
   let ws = words file
-      f = \x -> liftA2 (,) (pure x) (wordleEntropyAverageDynamic x m ws)
-  LTH.sort (negate . snd) <$> mapConcurrently f ws
+  pure $ f ms ws
+  where
+    f [] xs = xs
+    f (m:ms) xs = f ms $ flip filter xs $
+      \x -> judgeWordle x (fst m) == snd m
+
+wordleEntropyRankingWithEnv :: [(String, [Color])] -> FilePath -> IO [(String, Double)]
+wordleEntropyRankingWithEnv ms path = do
+  xs <- wordsWithEnv ms path
+  pure $ LTH.sort (negate . snd) $ (id &&& flip wordleEntropyAverage xs) <$> xs
+
