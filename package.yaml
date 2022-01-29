@@ -8,6 +8,7 @@ dependencies:
 - sqlite-simple
 - utility-ht
 - containers
+- stm
 - async
 - hspec
 
