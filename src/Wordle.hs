@@ -106,7 +106,7 @@ wordleEntropyRankingConcurrent path = do
 
 
 -- dynamic version is very slow ...
--- Maybe, reading TVar is not efficient.  
+-- Maybe, readTVar is not efficient.  
 
 wordleEntropyRankingDynamic :: FilePath -> IO [(String, Double)]
 wordleEntropyRankingDynamic path = do
