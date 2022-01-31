@@ -1,6 +1,7 @@
 
 module WordPossibility where
 
+import System.IO
 import Data.Char (isAlpha, toLower)
 import Data.List (intercalate)
 import qualified Data.List.Key as LTH
@@ -9,15 +10,15 @@ import Data.Maybe (fromMaybe)
 import Control.Arrow (Arrow((&&&)))
 
 sample :: IO ()
-sample = ranking "wordle.txt" >>= mapM_ print . take 100
+sample = entropyRankingFromFile "wordle.txt" >>= mapM_ print . take 100
 
 validateN :: Int -> FilePath -> FilePath -> IO ()
 validateN n input output = do
   file <- readFile input
   let ws = words file
-      enu_words = filter (\s -> all isAlpha s && length s == n) ws
-      words_set = Set.fromList enu_words 
-  print $ length enu_words
+      nwords = filter (\s -> all isAlpha s && length s == n) ws
+      words_set = Set.fromList nwords 
+  print $ length nwords
   print $ Set.size words_set
   writeFile output $ tail $ Set.foldl' (\a b -> a++"\n"++b) [] words_set
 
@@ -64,8 +65,15 @@ charPossibility c = if isAlpha c
 charEntropy :: Char -> Double
 charEntropy = negate . logBase 2 . charPossibility
 
-ranking :: FilePath -> IO [(String, Double)]
-ranking path = do
+entropyRanking :: Handle -> IO [(String, Double)]
+entropyRanking handle = do
+  file <- hGetContents handle
+  let ws = words file
+      res = (id &&& wordEntropyAverage) <$> ws
+  return $ LTH.sort (negate . snd) res
+
+entropyRankingFromFile :: FilePath -> IO [(String, Double)]
+entropyRankingFromFile path = do
   file <-readFile path
   let ws = words file
       res = (id &&& wordEntropyAverage) <$> ws
