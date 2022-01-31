@@ -10,6 +10,7 @@ dependencies:
 - containers
 - resource-pool
 - extensible
+- cassava
 - async
 - hspec
 

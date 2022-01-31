@@ -5,12 +5,12 @@
 
 packages:
 - completed:
-    hackage: extensible-0.8.3@sha256:2886978a81e9c2ff29a93caf7ae847a8b7724dc4ee22381c5d29ca8318c686c4,2955
+    hackage: extensible-0.8@sha256:7de5df8ddf9c325bc67d3047a63472d6e05c2d227c365bad92202519d25e16dc,3043
     pantry-tree:
-      size: 2041
-      sha256: 670fd3807d351e2668eb7c10d926c24501ef190e49e4a4624acc822b09b257b4
+      size: 2097
+      sha256: 6dd6a5d5e699352690d23a0b2737337ed312d734df784ebccaf024e27acf7f94
   original:
-    hackage: extensible-0.8.3
+    hackage: extensible-0.8
 - completed:
     hackage: incremental-0.3.1@sha256:9c697bae4f7e5ceb144bde13e03ca2f36b4bc2d0c92bbc02e0a604231ee279c2,1153
     pantry-tree:
