@@ -1,8 +1,7 @@
 module Wordle where
 
-import Control.Concurrent.Async
-import Control.Monad.STM
-import Control.Concurrent.STM.TVar
+import Control.Concurrent.Async (mapConcurrently)
+import System.IO
 import qualified Data.List.Key as LTH
 import qualified Data.Map.Strict as M
  
@@ -58,30 +57,59 @@ wordleEntropyAverage s dict_ =
       maps = countColors s dict M.empty
   in M.foldr (\a b -> let p = fromIntegral a / fromIntegral sampleCount in p*negate (logBase 2 p) + b) 0 maps
 
+calculateWordleEntropy :: String -> Handle -> IO Double
+calculateWordleEntropy s handle = do
+  file <- hGetContents handle
+  let ws = words file
+  pure $ wordleEntropyAverage s ws
 
-calculateWordleEntropy :: String -> FilePath -> IO Double
-calculateWordleEntropy s path = do
+calculateWordleEntropyFromFile :: String -> FilePath -> IO Double
+calculateWordleEntropyFromFile s path = do
   file <- readFile path
   let ws = words file
   pure $ wordleEntropyAverage s ws
 
-wordleEntropyRanking :: FilePath -> IO [(String, Double)]
-wordleEntropyRanking path = do
+wordleEntropyRanking :: Handle -> IO [(String, Double)]
+wordleEntropyRanking handle = do
+  file <- hGetContents handle
+  let ws = words file
+      f = id &&& flip wordleEntropyAverage ws
+  pure $ LTH.sort (negate . snd) $ fmap f ws 
+
+wordleEntropyRankingFromFile :: FilePath -> IO [(String, Double)]
+wordleEntropyRankingFromFile path = do
   file <- readFile path
   let ws = words file
       f = id &&& flip wordleEntropyAverage ws
   pure $ LTH.sort (negate . snd) $ fmap f ws 
 
-wordleEntropyRankingConcurrent :: FilePath -> IO [(String, Double)]
-wordleEntropyRankingConcurrent path = do
+wordleEntropyRankingConcurrent :: Handle -> IO [(String, Double)]
+wordleEntropyRankingConcurrent handle = do
+  file <- hGetContents handle
+  let ws = words file
+      f = id &&& flip wordleEntropyAverage ws
+  LTH.sort (negate . snd) <$> mapConcurrently (pure . f) ws
+
+wordleEntropyRankingConcurrentFromFile :: FilePath -> IO [(String, Double)]
+wordleEntropyRankingConcurrentFromFile path = do
   file <- readFile path
   let ws = words file
       f = id &&& flip wordleEntropyAverage ws
   LTH.sort (negate . snd) <$> mapConcurrently (pure . f) ws
 
 
-wordsWithEnv :: [(String, [Color])] -> FilePath -> IO [String]
-wordsWithEnv ms path = do
+wordsWithEnv :: [(String, [Color])] -> Handle -> IO [String]
+wordsWithEnv ms handle = do
+  file <- hGetContents handle
+  let ws = words file
+  pure $ f ms ws
+  where
+    f [] xs = xs
+    f (m:ms) xs = f ms $ flip filter xs $
+      \x -> judgeWordle x (fst m) == snd m
+
+wordsWithEnvFromFile :: [(String, [Color])] -> FilePath -> IO [String]
+wordsWithEnvFromFile ms path = do
   file <- readFile path
   let ws = words file
   pure $ f ms ws
@@ -90,8 +118,12 @@ wordsWithEnv ms path = do
     f (m:ms) xs = f ms $ flip filter xs $
       \x -> judgeWordle x (fst m) == snd m
 
-wordleEntropyRankingWithEnv :: [(String, [Color])] -> FilePath -> IO [(String, Double)]
-wordleEntropyRankingWithEnv ms path = do
-  xs <- wordsWithEnv ms path
+wordleEntropyRankingWithEnv :: [(String, [Color])] -> Handle -> IO [(String, Double)]
+wordleEntropyRankingWithEnv ms handle = do
+  xs <- wordsWithEnv ms handle
   pure $ LTH.sort (negate . snd) $ (id &&& flip wordleEntropyAverage xs) <$> xs
 
+wordleEntropyRankingWithEnvFromFile :: [(String, [Color])] -> FilePath -> IO [(String, Double)]
+wordleEntropyRankingWithEnvFromFile ms path = do
+  xs <- wordsWithEnvFromFile ms path
+  pure $ LTH.sort (negate . snd) $ (id &&& flip wordleEntropyAverage xs) <$> xs
